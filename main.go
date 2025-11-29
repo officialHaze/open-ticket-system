@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-	"ots/mongo"
+	"ots/helper"
 	"ots/settings"
 
 	"github.com/joho/godotenv"
@@ -37,7 +37,10 @@ func main() {
 	log.Printf("OTS running in %s environment.", env)
 
 	// DB index setup
-	if err := mongo.EnsureAllIndexes(); err != nil {
-		log.Println(err)
-	}
+	errs := helper.EnsureAllIndexes()
+	log.Printf("Index creation errors: %v", errs)
+
+	// Add initial admins
+	ids := helper.AddInitialAdmins()
+	log.Printf("Insterted Admin IDs: %v", ids)
 }

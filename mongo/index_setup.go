@@ -12,14 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func EnsureAllIndexes() error {
-	if err := EnsureTicketIndexes(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// Ticket Index
 func EnsureTicketIndexes() error {
 	ticket := &model.Ticket{}
 	coll := mgm.Coll(ticket)
@@ -86,6 +79,120 @@ func EnsureTicketIndexes() error {
 		index2,
 		index3,
 		index4,
+	}
+	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	if err != nil {
+		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
+	}
+
+	log.Printf("Indexes created with names: %v", names)
+
+	return nil
+}
+
+// Ticket Pipeline Index
+func EnsureTicketPipelineIndexes() error {
+	ticketpipeline := &model.TicketPipeline{}
+	coll := mgm.Coll(ticketpipeline)
+
+	// index 1
+	index1 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "ticketId",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetName("ticket_id_idx"),
+	}
+
+	// index 2
+	index2 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "resolverId",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetName("resolver_id_idx"),
+	}
+
+	// create indexes
+	idxs := []mongo.IndexModel{
+		index1,
+		index2,
+	}
+	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	if err != nil {
+		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
+	}
+
+	log.Printf("Indexes created with names: %v", names)
+
+	return nil
+}
+
+// Resolver Index
+func EnsureResolverIndexes() error {
+	resolver := &model.Resolver{}
+	coll := mgm.Coll(resolver)
+
+	// index 1 (compound text index)
+	index1 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "name",
+				Value: "text",
+			},
+			{
+				Key:   "email",
+				Value: "text",
+			},
+			{
+				Key:   "status",
+				Value: "text",
+			},
+		},
+		Options: options.Index().SetName("text_compund_idx"),
+	}
+
+	// create indexes
+	idxs := []mongo.IndexModel{
+		index1,
+	}
+	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	if err != nil {
+		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
+	}
+
+	log.Printf("Indexes created with names: %v", names)
+
+	return nil
+}
+
+// Admin Index
+func EnsureAdminIndexes() error {
+	admin := &model.Admin{}
+	coll := mgm.Coll(admin)
+
+	// index 1 (compound text index)
+	index1 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "name",
+				Value: "text",
+			},
+			{
+				Key:   "email",
+				Value: "text",
+			},
+		},
+		Options: options.Index().SetName("text_compund_idx"),
+	}
+
+	// create indexes
+	idxs := []mongo.IndexModel{
+		index1,
 	}
 	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
 	if err != nil {

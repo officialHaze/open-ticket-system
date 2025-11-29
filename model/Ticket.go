@@ -19,6 +19,12 @@ type Ticket struct {
 	CreatorId        string             `json:"creatorId" bson:"creatorId"`
 }
 
+type TicketPipeline struct {
+	mgm.DefaultModel `bson:",inline"`
+	TicketID         primitive.ObjectID `json:"ticketId" bson:"ticketId"`
+	ResolverID       primitive.ObjectID `json:"resolverId" bson:"resolverId"`
+}
+
 type TicketMilestone struct {
 	Mark    int    `json:"mark" bson:"mark"`
 	Title   string `json:"title" bson:"title"`
