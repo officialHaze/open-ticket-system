@@ -1,0 +1,23 @@
+{
+  "mongo_url": "mongodb://rootlocal:<DB_PASSWORD>@localhost:27017/",
+  "db_name": "ots_db",
+  "use_env": ".env.local",
+  "default_ticket_milestones": [
+    {
+      "mark": 1,
+      "title": "Open",
+      "message": "Ticket has been opened."
+    },
+    {
+      "mark": 2,
+      "title": "In-Progress",
+      "message": "Issue is being looked into. Solution will be provided soon."
+    },
+    {
+      "mark": 3,
+      "title": "Closed",
+      "message": "Ticket closed."
+    }
+  ],
+  "ctx_timeout_min": 10
+}

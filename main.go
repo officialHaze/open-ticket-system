@@ -3,18 +3,41 @@ package main
 import (
 	"log"
 	"os"
-	"ots/util"
+	"ots/mongo"
+	"ots/settings"
+
+	"github.com/joho/godotenv"
+	"github.com/kamva/mgm/v3"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func init() {
+	settings.Generate()
+
 	// Load the env file
-	if err := util.LoadEnv(); err != nil {
-		log.Fatalln(err)
+	if err := godotenv.Load(settings.MySettings.Get_UseEnv()); err != nil {
+		log.Fatalf("error loading ENV: %v", err)
 	}
 	log.Println("ENV file loaded successfully.")
+
+	// Setup mgm
+	err := mgm.SetDefaultConfig(
+		nil,
+		settings.MySettings.Get_DBName(),
+		options.Client().ApplyURI(settings.MySettings.Get_MongoURL()))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("MGM setup complete.")
+
 }
 
 func main() {
 	env := os.Getenv("ENV")
 	log.Printf("OTS running in %s environment.", env)
+
+	// DB index setup
+	if err := mongo.EnsureAllIndexes(); err != nil {
+		log.Println(err)
+	}
 }
