@@ -37,7 +37,6 @@ func main() {
 	log.Printf("OTS running in %s environment.", env)
 
 	// DB index setup
-	if err := mongo.EnsureAllIndexes(); err != nil {
-		log.Println(err)
-	}
+	errs := mongo.EnsureAllIndexes()
+	log.Printf("Index creation errors: %v", errs)
 }
