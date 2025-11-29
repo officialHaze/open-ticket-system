@@ -9,7 +9,7 @@ import (
 
 type Ticket struct {
 	mgm.DefaultModel `bson:",inline"`
-	Title            string             `json:"title" bson:"title"`
+	Title            string             `json:"title" bson:"title"` // unique
 	Description      string             `json:"description" bson:"description"`
 	Status           string             `json:"status" bson:"status"`
 	Priority         string             `json:"priority" bson:"priority"`
@@ -19,7 +19,7 @@ type Ticket struct {
 	CreatorId        string             `json:"creatorId" bson:"creatorId"`
 }
 
-type TicketPipeline struct {
+type TicketTracker struct {
 	mgm.DefaultModel `bson:",inline"`
 	TicketID         primitive.ObjectID `json:"ticketId" bson:"ticketId"`
 	ResolverID       primitive.ObjectID `json:"resolverId" bson:"resolverId"`

@@ -73,12 +73,23 @@ func EnsureTicketIndexes() error {
 		Options: options.Index().SetName("creator_id_idx"),
 	}
 
+	index5 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "title",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetName("ticket_title_idx").SetUnique(true),
+	}
+
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
 		index2,
 		index3,
 		index4,
+		index5,
 	}
 	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
 	if err != nil {
@@ -91,8 +102,8 @@ func EnsureTicketIndexes() error {
 }
 
 // Ticket Pipeline Index
-func EnsureTicketPipelineIndexes() error {
-	ticketpipeline := &model.TicketPipeline{}
+func EnsureTicketTrackerIndexes() error {
+	ticketpipeline := &model.TicketTracker{}
 	coll := mgm.Coll(ticketpipeline)
 
 	// index 1
@@ -145,10 +156,6 @@ func EnsureResolverIndexes() error {
 				Value: "text",
 			},
 			{
-				Key:   "email",
-				Value: "text",
-			},
-			{
 				Key:   "status",
 				Value: "text",
 			},
@@ -156,9 +163,20 @@ func EnsureResolverIndexes() error {
 		Options: options.Index().SetName("text_compund_idx"),
 	}
 
+	index2 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "email",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetUnique(true).SetName("resolver_email_idx"),
+	}
+
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
+		index2,
 	}
 	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
 	if err != nil {
@@ -182,17 +200,25 @@ func EnsureAdminIndexes() error {
 				Key:   "name",
 				Value: "text",
 			},
-			{
-				Key:   "email",
-				Value: "text",
-			},
 		},
 		Options: options.Index().SetName("text_compund_idx"),
+	}
+
+	// index 2
+	index2 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "email",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetUnique(true).SetName("admin_email_index"),
 	}
 
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
+		index2,
 	}
 	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
 	if err != nil {
