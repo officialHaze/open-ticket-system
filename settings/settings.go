@@ -21,10 +21,12 @@ type settingsConf struct {
 	Use_env                   string                   `json:"use_env"`
 	Default_ticket_milestones []*model.TicketMilestone `json:"default_ticket_milestones"`
 	Ctx_timeout_min           int                      `json:"ctx_timeout_min"`
+	Initial_admins            []*model.Admin           `json:"initial_admins"`
+	Password_hash_rounds      int                      `json:"password_hash_rounds"`
 }
 
 func ReadConfig() (*settingsConf, error) {
-	settings := &settingsConf{}
+	settingsconf := &settingsConf{}
 	filepath := path.Join("settings", "settings.jsonc")
 
 	f, err := os.Open(filepath)
@@ -38,13 +40,13 @@ func ReadConfig() (*settingsConf, error) {
 		return nil, fmt.Errorf("error reading %s: %v", filepath, err)
 	}
 
-	if err = json.Unmarshal(b, settings); err != nil {
+	if err = json.Unmarshal(b, settingsconf); err != nil {
 
 		return nil, fmt.Errorf("error decoding settings: %v", err)
 	}
 	// log.Printf("Settings: %v", settings)
 
-	return settings, nil
+	return settingsconf, nil
 }
 
 func Generate() {
@@ -56,6 +58,12 @@ func Generate() {
 	ctxBase := context.TODO()
 	ctx, cancel := context.WithTimeout(ctxBase, time.Duration(conf.Ctx_timeout_min)*time.Minute)
 
+	// Replace redacted password with actual password for each admin from env
+	for i, a := range conf.Initial_admins {
+		pass := os.Getenv(fmt.Sprintf("ADMIN_PASS_%d", i))
+		a.Password = strings.Replace(a.Password, fmt.Sprintf("<ADMIN_PASS_%d>", i), pass, 1)
+	}
+
 	MySettings = &Settings{
 		mongo_url:                 conf.Mongo_url,
 		db_name:                   conf.Db_name,
@@ -63,6 +71,8 @@ func Generate() {
 		default_ticket_milestones: conf.Default_ticket_milestones,
 		ctx_with_timeout:          ctx,
 		ctx_cancel:                cancel,
+		initial_admins:            conf.Initial_admins,
+		password_hash_rounds:      conf.Password_hash_rounds,
 	}
 }
 
@@ -73,6 +83,8 @@ type Settings struct {
 	default_ticket_milestones []*model.TicketMilestone
 	ctx_with_timeout          context.Context
 	ctx_cancel                context.CancelFunc
+	initial_admins            []*model.Admin
+	password_hash_rounds      int
 }
 
 // Getters
@@ -105,4 +117,12 @@ func (s *Settings) Get_CtxWithTimeout() context.Context {
 
 func (s *Settings) Get_CtxCancel() context.CancelFunc {
 	return s.ctx_cancel
+}
+
+func (s *Settings) Get_InitialAdmins() []*model.Admin {
+	return s.initial_admins
+}
+
+func (s *Settings) Get_PasswdHashRounds() int {
+	return s.password_hash_rounds
 }

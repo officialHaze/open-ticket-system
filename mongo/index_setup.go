@@ -12,25 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func EnsureAllIndexes() []error {
-	idxs := map[int]func() error{
-		0: EnsureTicketIndexes,
-		1: EnsureTicketPipelineIndexes,
-		2: EnsureResolverIndexes,
-		3: EnsureAdminIndexes,
-	}
-
-	errors := make([]error, 0, len(idxs))
-	for _, fn := range idxs {
-		if err := fn(); err != nil {
-			errors = append(errors, err)
-			continue
-		}
-	}
-
-	return errors
-}
-
 // Ticket Index
 func EnsureTicketIndexes() error {
 	ticket := &model.Ticket{}

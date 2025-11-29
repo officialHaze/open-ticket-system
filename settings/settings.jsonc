@@ -19,5 +19,14 @@
       "message": "Ticket closed."
     }
   ],
-  "ctx_timeout_min": 10
+  "ctx_timeout_min": 10,
+  "initial_admins": [
+    {
+      "name": "Moinak Dey",
+      "email": "moinak.dey8@gmail.com",
+      "phone": "+916289992166",
+      "password": "<ADMIN_PASSWORD_0>"
+    }
+  ],
+  "password_hash_rounds": 13
 }
