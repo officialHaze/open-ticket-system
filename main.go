@@ -32,6 +32,10 @@ func init() {
 	}
 	log.Println("MGM setup complete.")
 
+	// Generate paseto
+	if err := helper.GeneratePaseto(); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func main() {

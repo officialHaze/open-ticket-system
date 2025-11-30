@@ -32,4 +32,24 @@ func AssignResolverToTicket(ticket *model.Ticket, resolverId primitive.ObjectID)
 	return ticket, nil
 }
 
-// func UpdateTicketTracker(resolverId primitive.ObjectID)
+func UpdateTicketStatus(status string, ticketId primitive.ObjectID) error {
+	ticket := &model.Ticket{}
+	coll := mgm.Coll(ticket)
+
+	searchfilter := bson.M{
+		"_id": ticketId,
+	}
+
+	updatefilter := bson.M{
+		"$set": bson.M{
+			"status": status,
+		},
+	}
+
+	err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), searchfilter, updatefilter).Decode(&ticket)
+	if err != nil {
+		return fmt.Errorf("error updating ticket status")
+	}
+
+	return nil
+}

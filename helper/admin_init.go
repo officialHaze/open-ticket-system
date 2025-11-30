@@ -1,9 +1,12 @@
 package helper
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"ots/mongo/dbops"
 	"ots/settings"
+	"strings"
 )
 
 func AddInitialAdmins() []interface{} {
@@ -11,8 +14,12 @@ func AddInitialAdmins() []interface{} {
 
 	insertedIds := make([]interface{}, 0, 100)
 
-	for _, admin := range adminDetails {
+	for i, admin := range adminDetails {
 		log.Printf("Admin email: %s", admin.Email)
+
+		// Replace the password pointer with original password
+		pass := os.Getenv(fmt.Sprintf("ADMIN_PASS_%d", i))
+		admin.Password = strings.Replace(admin.Password, fmt.Sprintf("<ADMIN_PASSWORD_%d>", i), pass, 1)
 
 		// Update/Set necessary fields
 		admin.IsVerified = true

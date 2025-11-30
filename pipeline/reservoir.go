@@ -14,12 +14,14 @@ func NewReservoir[T any](size int) *Reservoir[T] {
 	}
 
 	return &Reservoir[T]{
-		queue: make([]T, 0, s),
+		queue:      make([]T, 0, s),
+		discardbin: make([]T, 0, s),
 	}
 }
 
 type Reservoir[T any] struct {
-	queue []T
+	queue      []T
+	discardbin []T
 }
 
 func (r *Reservoir[T]) Fill(d []T) {
@@ -28,6 +30,26 @@ func (r *Reservoir[T]) Fill(d []T) {
 
 func (r *Reservoir[T]) Size() int {
 	return len(r.queue)
+}
+
+func (r *Reservoir[T]) BinSize() int {
+	return len(r.discardbin)
+}
+
+func (r *Reservoir[T]) QueueToBin() {
+	if len(r.queue) <= 0 {
+		return
+	}
+
+	first := r.queue[0]
+	r.discardbin = append(r.discardbin, first)
+
+	// restructure the queue
+	r.queue = r.queue[1:] // ignore the first element
+}
+
+func (r *Reservoir[T]) EmptyBin() {
+	r.discardbin = r.discardbin[:0]
 }
 
 // Print the contents of reservoir

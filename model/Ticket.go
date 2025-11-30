@@ -17,6 +17,8 @@ type Ticket struct {
 	Milestones       []*TicketMilestone `json:"milestones" bson:"milestones"`
 	AssignedTo       primitive.ObjectID `json:"assignedTo" bson:"assignedTo"`
 	CreatorId        string             `json:"creatorId" bson:"creatorId"`
+	CreatorDetails   *CreatorDetails    `json:"creatorDetails" bson:"creatorDetails"`
+	Comment          string             `json:"comment" bson:"bson"`
 }
 
 type TicketTracker struct {
@@ -29,4 +31,9 @@ type TicketMilestone struct {
 	Mark    int    `json:"mark" bson:"mark"`
 	Title   string `json:"title" bson:"title"`
 	Message string `json:"message" bson:"message"`
+}
+
+type CreatorDetails struct {
+	Name  string `json:"name" bson:"name"`
+	Email string `json:"email" bson:"email"`
 }

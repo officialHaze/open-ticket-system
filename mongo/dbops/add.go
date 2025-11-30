@@ -5,6 +5,7 @@ import (
 	"log"
 	"ots/model"
 	"ots/settings"
+	"ots/ticketstructs"
 
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,11 +28,9 @@ func AddAdmin(admin *model.Admin) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		return admin.ID, nil
 	}
 
-	return nil, fmt.Errorf("admin with email - %s, already exists", admin.Email)
+	return admin.ID, nil
 }
 
 func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
@@ -58,10 +57,10 @@ func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
 		}
 		log.Printf("Ticket tracker created - %s, for resolver - %s", tt.ID, resolver.ID)
 
-		return resolver.ID, nil
+		// return resolver.ID, nil
 	}
 
-	return primitive.NilObjectID, fmt.Errorf("resolver with email - %s, already exists", resolver.Email)
+	return resolver.ID, nil
 }
 
 func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
@@ -78,6 +77,7 @@ func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		// Insert one
 		ticket.AssignedTo = primitive.NilObjectID
 		ticket.Milestones = append(ticket.Milestones, settings.MySettings.Get_DefaultTicketMilestones()[0])
+		ticket.Status = ticketstructs.GenerateTicketStatus().Created
 		err := coll.Create(ticket)
 		if err != nil {
 			return nil, err
