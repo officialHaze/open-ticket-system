@@ -6,8 +6,10 @@ import (
 	"ots/model"
 	"ots/mongo/dbops"
 	"ots/pipeline"
+	"ots/ticketstructs"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewTicket(c *gin.Context) {
@@ -48,4 +50,30 @@ func NewTicket(c *gin.Context) {
 	log.Printf("Pushing ticket with ID - %s to the pipeline.", ticket.ID)
 	pipeline.TicketPipeline.Push(ticket)
 	log.Printf("Ticket with ID - %s, pushed to pipeline.", ticket.ID)
+}
+
+func GetTicketsByCreator(c *gin.Context) {
+	creatorid := c.Query("creatorid")
+
+	tickets := dbops.GetTicketsBy("creatorid", creatorid)
+
+	c.IndentedJSON(http.StatusOK, tickets)
+}
+
+func SetTicketStatusOpen(c *gin.Context) {
+	ticketId := c.Query("ticketid")
+
+	ticketObjectId, err := primitive.ObjectIDFromHex(ticketId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "invalid ticket id")
+		return
+	}
+
+	if err := dbops.UpdateTicketStatus(ticketstructs.GenerateTicketStatus().Open, ticketObjectId); err != nil {
+		log.Printf("error opening ticket: %v", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "error opening ticket. internal server error")
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, "ticket has been opened")
 }

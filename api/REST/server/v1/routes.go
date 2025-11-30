@@ -17,9 +17,12 @@ func MapRoutes(v1 *gin.RouterGroup) {
 	// **** Ticket Group **** //
 	ticket := v1.Group("/ticket")
 	ticket.POST("/new", controller.NewTicket)
+	ticket.GET("/", controller.GetTicketsByCreator)
+	ticket.PUT("/open", middleware.AuthenticateResolverAccess, controller.SetTicketStatusOpen) // only resolvers can update status of tickets
 
 	// **** Resolver Group **** //
 	resolver := v1.Group("/resolver")
 	resolver.POST("/login", controller.ResolverLogin)
 	resolver.POST("/new", middleware.AuthenticateAdminAccess, controller.NewResolver) // only admins can add new resolvers
+	resolver.GET("/tickets", middleware.AuthenticateResolverAccess, controller.GetAssignedTickets)
 }

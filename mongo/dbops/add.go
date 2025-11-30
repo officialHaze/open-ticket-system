@@ -5,6 +5,7 @@ import (
 	"log"
 	"ots/model"
 	"ots/settings"
+	"ots/ticketstructs"
 
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
@@ -76,6 +77,7 @@ func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		// Insert one
 		ticket.AssignedTo = primitive.NilObjectID
 		ticket.Milestones = append(ticket.Milestones, settings.MySettings.Get_DefaultTicketMilestones()[0])
+		ticket.Status = ticketstructs.GenerateTicketStatus().Created
 		err := coll.Create(ticket)
 		if err != nil {
 			return nil, err

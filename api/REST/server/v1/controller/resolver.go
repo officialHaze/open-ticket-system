@@ -93,3 +93,17 @@ func ResolverLogin(c *gin.Context) {
 		"phone": resolver.Phone,
 	})
 }
+
+func GetAssignedTickets(c *gin.Context) {
+	resolverctx, exists := c.Get("resolver")
+	if !exists {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "resolver session unavailable")
+		return
+	}
+	resolver := resolverctx.(*tokenstructs.AccessToken)
+	log.Printf("Resolver ID: %s", resolver.Id)
+
+	tickets := dbops.GetTicketsBy("assignee", resolver.Id)
+
+	c.IndentedJSON(http.StatusOK, tickets)
+}

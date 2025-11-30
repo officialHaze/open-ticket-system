@@ -5,6 +5,7 @@ import (
 	"log"
 	"ots/model"
 	"ots/settings"
+	"sort"
 	"strings"
 
 	"github.com/kamva/mgm/v3"
@@ -137,4 +138,50 @@ func GetResolverBy[T any](by string, d T) (*model.Resolver, error) {
 	}
 
 	return resolver, nil
+}
+
+func GetTicketsBy[T any](by string, d T) []*model.Ticket {
+	tickets := make([]*model.Ticket, 0, 100)
+
+	ticket := &model.Ticket{}
+	coll := mgm.Coll(ticket)
+
+	var filter bson.M
+
+	switch strings.ToLower(by) {
+	case "assignee":
+		filter = bson.M{
+			"assignedTo": d,
+		}
+
+	case "creatorid":
+		filter = bson.M{
+			"creatorId": d,
+		}
+
+	default:
+		log.Printf("unsupported by factor - %s", by)
+		return []*model.Ticket{}
+	}
+
+	cursor, err := coll.Find(settings.MySettings.Get_CtxWithTimeout(), filter)
+	if err != nil {
+		log.Printf("error getting tickets: %v", err)
+		return []*model.Ticket{}
+	}
+
+	for cursor.Next(settings.MySettings.Get_CtxWithTimeout()) {
+		var ticket *model.Ticket
+		if err := cursor.Decode(&ticket); err != nil {
+			log.Printf("decoding error: %v", err)
+			continue
+		}
+
+		tickets = append(tickets, ticket)
+	}
+
+	// Sort by title (A-Z)
+	sort.Slice(tickets, func(i, j int) bool { return strings.ToLower(tickets[i].Title) < strings.ToLower(tickets[j].Title) })
+
+	return tickets
 }
