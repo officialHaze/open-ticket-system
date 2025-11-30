@@ -1,9 +1,11 @@
 package dbops
 
 import (
+	"fmt"
 	"log"
 	"ots/model"
 	"ots/settings"
+	"strings"
 
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
@@ -77,4 +79,62 @@ func GetSimilarTickets(title, description string) []*model.Ticket {
 	n := min(5, len(similarTickets))
 
 	return similarTickets[:n]
+}
+
+func GetAdminBy[T any](by string, d T) (*model.Admin, error) {
+	admin := &model.Admin{}
+	coll := mgm.Coll(admin)
+
+	var filter bson.M
+
+	switch strings.ToLower(by) {
+	case "email":
+		filter = bson.M{
+			"email": d,
+		}
+
+	case "id":
+		filter = bson.M{
+			"_id": d,
+		}
+
+	default:
+		return nil, fmt.Errorf("by factor not supported yet")
+	}
+
+	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&admin); err != nil {
+		// admin does not exist
+		return nil, fmt.Errorf("admin does not exist")
+	}
+
+	return admin, nil
+}
+
+func GetResolverBy[T any](by string, d T) (*model.Resolver, error) {
+	resolver := &model.Resolver{}
+	coll := mgm.Coll(resolver)
+
+	var filter bson.M
+
+	switch strings.ToLower(by) {
+	case "email":
+		filter = bson.M{
+			"email": d,
+		}
+
+	case "id":
+		filter = bson.M{
+			"_id": d,
+		}
+
+	default:
+		return nil, fmt.Errorf("by factor not supported yet")
+	}
+
+	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&resolver); err != nil {
+		// admin does not exist
+		return nil, fmt.Errorf("resolver does not exist")
+	}
+
+	return resolver, nil
 }

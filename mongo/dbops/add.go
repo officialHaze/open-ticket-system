@@ -27,11 +27,9 @@ func AddAdmin(admin *model.Admin) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		return admin.ID, nil
 	}
 
-	return nil, fmt.Errorf("admin with email - %s, already exists", admin.Email)
+	return admin.ID, nil
 }
 
 func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
@@ -58,10 +56,10 @@ func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
 		}
 		log.Printf("Ticket tracker created - %s, for resolver - %s", tt.ID, resolver.ID)
 
-		return resolver.ID, nil
+		// return resolver.ID, nil
 	}
 
-	return primitive.NilObjectID, fmt.Errorf("resolver with email - %s, already exists", resolver.Email)
+	return resolver.ID, nil
 }
 
 func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {

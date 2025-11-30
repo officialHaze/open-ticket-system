@@ -37,5 +37,7 @@
   "pipeline_size": 10000,
   "reservoir_size": 2,
   "server_port": 6666,
-  "ticket_assign_timeout_min": 1
+  "ticket_assign_timeout_min": 1,
+  "token_footer": "Moinak Dey",
+  "access_token_exp_min": 20
 }
