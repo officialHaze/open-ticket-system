@@ -1,20 +1,25 @@
 {
-  "mongo_url": "mongodb://rootlocal:<DB_PASSWORD>@localhost:27017/",
+  "mongo_url": "mongodb://rootlocal:<DB_PASSWORD>@host.docker.internal:27017/",
   "db_name": "ots_db",
   "use_env": ".env.local",
   "default_ticket_milestones": [
     {
       "mark": 1,
+      "title": "Created",
+      "message": "Ticket created"
+    },
+    {
+      "mark": 2,
       "title": "Open",
       "message": "Ticket has been opened."
     },
     {
-      "mark": 2,
+      "mark": 3,
       "title": "In-Progress",
       "message": "Issue is being looked into. Solution will be provided soon."
     },
     {
-      "mark": 3,
+      "mark": 4,
       "title": "Closed",
       "message": "Ticket closed."
     }
@@ -28,5 +33,11 @@
       "password": "<ADMIN_PASSWORD_0>"
     }
   ],
-  "password_hash_rounds": 13
+  "password_hash_rounds": 13,
+  "pipeline_size": 10000,
+  "reservoir_size": 2,
+  "server_port": 6666,
+  "ticket_assign_timeout_min": 1,
+  "token_footer": "Moinak Dey",
+  "access_token_exp_min": 20
 }

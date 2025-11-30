@@ -23,6 +23,12 @@ type settingsConf struct {
 	Ctx_timeout_min           int                      `json:"ctx_timeout_min"`
 	Initial_admins            []*model.Admin           `json:"initial_admins"`
 	Password_hash_rounds      int                      `json:"password_hash_rounds"`
+	Pipeline_size             int                      `json:"pipeline_size"`
+	Server_port               int                      `json:"server_port"`
+	Ticket_assign_timeout_min int                      `json:"ticket_assign_timeout_min"`
+	Reservoir_size            int                      `json:"reservoir_size"`
+	Token_footer              string                   `json:"token_footer"`
+	Access_token_exp_min      int                      `json:"access_token_exp_min"`
 }
 
 func ReadConfig() (*settingsConf, error) {
@@ -58,12 +64,6 @@ func Generate() {
 	ctxBase := context.TODO()
 	ctx, cancel := context.WithTimeout(ctxBase, time.Duration(conf.Ctx_timeout_min)*time.Minute)
 
-	// Replace redacted password with actual password for each admin from env
-	for i, a := range conf.Initial_admins {
-		pass := os.Getenv(fmt.Sprintf("ADMIN_PASS_%d", i))
-		a.Password = strings.Replace(a.Password, fmt.Sprintf("<ADMIN_PASS_%d>", i), pass, 1)
-	}
-
 	MySettings = &Settings{
 		mongo_url:                 conf.Mongo_url,
 		db_name:                   conf.Db_name,
@@ -73,6 +73,12 @@ func Generate() {
 		ctx_cancel:                cancel,
 		initial_admins:            conf.Initial_admins,
 		password_hash_rounds:      conf.Password_hash_rounds,
+		pipeline_size:             conf.Pipeline_size,
+		server_port:               conf.Server_port,
+		ticket_assign_timeout_min: time.Duration(conf.Ticket_assign_timeout_min) * time.Minute,
+		reservoir_size:            conf.Reservoir_size,
+		token_footer:              conf.Token_footer,
+		access_token_exp_min:      time.Duration(conf.Access_token_exp_min) * time.Minute,
 	}
 }
 
@@ -85,6 +91,12 @@ type Settings struct {
 	ctx_cancel                context.CancelFunc
 	initial_admins            []*model.Admin
 	password_hash_rounds      int
+	pipeline_size             int
+	server_port               int
+	ticket_assign_timeout_min time.Duration
+	reservoir_size            int
+	token_footer              string
+	access_token_exp_min      time.Duration
 }
 
 // Getters
@@ -125,4 +137,28 @@ func (s *Settings) Get_InitialAdmins() []*model.Admin {
 
 func (s *Settings) Get_PasswdHashRounds() int {
 	return s.password_hash_rounds
+}
+
+func (s *Settings) Get_PipelineSize() int {
+	return s.pipeline_size
+}
+
+func (s *Settings) Get_ServerPort() int {
+	return s.server_port
+}
+
+func (s *Settings) Get_TicketAssignTimeoutMin() time.Duration {
+	return s.ticket_assign_timeout_min
+}
+
+func (s *Settings) Get_ReservoirSize() int {
+	return s.reservoir_size
+}
+
+func (s *Settings) Get_TokenFooter() string {
+	return s.token_footer
+}
+
+func (s *Settings) Get_AccessTokenExpMin() time.Duration {
+	return s.access_token_exp_min
 }
