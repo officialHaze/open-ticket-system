@@ -26,7 +26,7 @@ type TickerAssigner struct {
 
 func (t *TickerAssigner) Init() {
 	log.Printf(`
-		Ticker Assigner initialized
+		Ticket Assigner initialized
 		Assigner will run every %v
 	`, t.timeoutMin)
 
@@ -68,18 +68,31 @@ func (t *TickerAssigner) Run() {
 			log.Println(err)
 			continue
 		}
+
+		// Remove the item from reservoir to discard bin
+		r.QueueToBin()
 	}
 
 	// Remove the processed tickets from the pipeline
 	log.Printf("Pipeline size before emptying: %d", pipeline.TicketPipeline.Size())
-	pipeline.TicketPipeline.EmptyUpto(settings.MySettings.Get_ReservoirSize())
+	log.Printf("Reservoir bin size now: %d", r.BinSize())
+
+	pipeline.TicketPipeline.EmptyUpto(r.BinSize())
+
 	log.Printf("Pipeline size after emptying: %d", pipeline.TicketPipeline.Size())
+	// Empty the reservoir bin
+	r.EmptyBin()
+
+	log.Printf("Reservoir bin size now: %d", r.BinSize())
 }
 
 func (t *TickerAssigner) Assign(ticket *model.Ticket) (primitive.ObjectID, error) {
 	// Query the DB to get ticket trackers
 	trackers := dbops.GetTicketTrackers()
 	log.Printf("Found Ticket Trackers: %d", len(trackers))
+	if len(trackers) <= 0 {
+		return primitive.NilObjectID, fmt.Errorf("no trackers found. aborting..")
+	}
 
 	// Sort the trackers by resolver ID (A-Z) to group multiple trackers
 	// of same resolver

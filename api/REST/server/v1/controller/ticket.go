@@ -11,13 +11,27 @@ import (
 )
 
 func NewTicket(c *gin.Context) {
-	// forcecreate := c.Query("force")
+	forcecreate := c.Query("force")
 
 	ticketdetails := &model.Ticket{}
 	if err := c.BindJSON(ticketdetails); err != nil {
 		log.Printf("Error binding JSON: %v", err)
 		c.Abort()
 		return
+	}
+
+	if forcecreate == "0" {
+		// First search and get similar tickets
+		// if found, then return the similar tickets
+		// no need to create new unless force query is true
+		similarTickets := dbops.GetSimilarTickets(ticketdetails.Title, ticketdetails.Description)
+		if len(similarTickets) > 0 {
+			c.IndentedJSON(http.StatusAccepted, map[string]any{
+				"message": "found similar tickets",
+				"tickets": similarTickets,
+			})
+			return
+		}
 	}
 
 	ticket, err := dbops.AddTicket(ticketdetails)

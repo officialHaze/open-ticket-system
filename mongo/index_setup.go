@@ -73,6 +73,7 @@ func EnsureTicketIndexes() error {
 		Options: options.Index().SetName("creator_id_idx"),
 	}
 
+	// index 5
 	index5 := mongo.IndexModel{
 		Keys: bson.D{
 			{

@@ -9,6 +9,10 @@ import (
 )
 
 func HashPasswd(plain string) (string, error) {
+	if plain == "" {
+		return "", fmt.Errorf("plan text is empty")
+	}
+
 	hashrounds := settings.MySettings.Get_PasswdHashRounds()
 
 	plainb := []byte(plain)
