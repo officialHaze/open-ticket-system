@@ -23,6 +23,10 @@ type settingsConf struct {
 	Ctx_timeout_min           int                      `json:"ctx_timeout_min"`
 	Initial_admins            []*model.Admin           `json:"initial_admins"`
 	Password_hash_rounds      int                      `json:"password_hash_rounds"`
+	Pipeline_size             int                      `json:"pipeline_size"`
+	Server_port               int                      `json:"server_port"`
+	Ticket_assign_timeout_min int                      `json:"ticket_assign_timeout_min"`
+	Reservoir_size            int                      `json:"reservoir_size"`
 }
 
 func ReadConfig() (*settingsConf, error) {
@@ -73,6 +77,10 @@ func Generate() {
 		ctx_cancel:                cancel,
 		initial_admins:            conf.Initial_admins,
 		password_hash_rounds:      conf.Password_hash_rounds,
+		pipeline_size:             conf.Pipeline_size,
+		server_port:               conf.Server_port,
+		ticket_assign_timeout_min: time.Duration(conf.Ticket_assign_timeout_min) * time.Minute,
+		reservoir_size:            conf.Reservoir_size,
 	}
 }
 
@@ -85,6 +93,10 @@ type Settings struct {
 	ctx_cancel                context.CancelFunc
 	initial_admins            []*model.Admin
 	password_hash_rounds      int
+	pipeline_size             int
+	server_port               int
+	ticket_assign_timeout_min time.Duration
+	reservoir_size            int
 }
 
 // Getters
@@ -125,4 +137,20 @@ func (s *Settings) Get_InitialAdmins() []*model.Admin {
 
 func (s *Settings) Get_PasswdHashRounds() int {
 	return s.password_hash_rounds
+}
+
+func (s *Settings) Get_PipelineSize() int {
+	return s.pipeline_size
+}
+
+func (s *Settings) Get_ServerPort() int {
+	return s.server_port
+}
+
+func (s *Settings) Get_TicketAssignTimeoutMin() time.Duration {
+	return s.ticket_assign_timeout_min
+}
+
+func (s *Settings) Get_ReservoirSize() int {
+	return s.reservoir_size
 }

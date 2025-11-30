@@ -1,0 +1,21 @@
+FROM golang:1.25-alpine
+
+# Set the working directory
+WORKDIR /ots-api
+
+# Install air for hot reload during development
+RUN go install github.com/air-verse/air@latest
+
+# Copy the mod and sum files
+COPY go.* .
+
+# Install the dependencies
+RUN go mod download
+
+# Copy the entire codebase
+COPY . .
+
+# Expose the port for this service
+EXPOSE 6666
+
+CMD ["air", "-c", ".air.toml", "--", "ots-server"]
