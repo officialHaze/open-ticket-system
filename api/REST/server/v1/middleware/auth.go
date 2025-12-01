@@ -3,9 +3,11 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"os"
 	"ots/helper"
 	"ots/mongo/dbops"
 	"ots/tokenstructs"
+	"slices"
 	"strings"
 	"time"
 
@@ -74,4 +76,20 @@ func AuthenticateAdminAccess(c *gin.Context) {
 
 func AuthenticateResolverAccess(c *gin.Context) {
 	AuthenticateAccessOf("resolver", c)
+}
+
+func AuthenticateAPIKey(c *gin.Context) {
+	bearer := c.GetHeader("Authorization")
+
+	apikey := strings.TrimPrefix(bearer, "Bearer ")
+
+	myapikeychain := os.Getenv("API_KEY_CHAIN")
+	myapikeys := strings.Split(myapikeychain, "-")
+
+	if !slices.Contains(myapikeys, apikey) {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, "a valid api key is needed to access the route")
+		return
+	}
+
+	c.Next()
 }
