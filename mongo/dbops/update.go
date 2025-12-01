@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"ots/model"
 	"ots/settings"
+	"ots/ticketstructs"
+	"time"
 
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func AssignResolverToTicket(ticket *model.Ticket, resolverId primitive.ObjectID) (*model.Ticket, error) {
@@ -24,7 +27,9 @@ func AssignResolverToTicket(ticket *model.Ticket, resolverId primitive.ObjectID)
 			"assignedTo": resolverId,
 		},
 	}
-	if err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), filter, update).Decode(&ticket); err != nil {
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), filter, update, opts).Decode(&ticket); err != nil {
 		// ticket does not exist
 		return nil, fmt.Errorf("ticket with ID - %s does not exist: %v", ticket.ID, err)
 	}
@@ -33,6 +38,11 @@ func AssignResolverToTicket(ticket *model.Ticket, resolverId primitive.ObjectID)
 }
 
 func UpdateTicketStatus(status string, ticketId primitive.ObjectID) error {
+	ts := ticketstructs.GenerateTicketStatus()
+	if !ts.IsValidStatus(status) {
+		return fmt.Errorf("invalid ticket status to update")
+	}
+
 	ticket := &model.Ticket{}
 	coll := mgm.Coll(ticket)
 
@@ -42,13 +52,37 @@ func UpdateTicketStatus(status string, ticketId primitive.ObjectID) error {
 
 	updatefilter := bson.M{
 		"$set": bson.M{
-			"status": status,
+			"status":           status,
+			"statusUpdateDate": time.Now(),
 		},
 	}
 
-	err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), searchfilter, updatefilter).Decode(&ticket)
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), searchfilter, updatefilter, opts).Decode(&ticket)
 	if err != nil {
 		return fmt.Errorf("error updating ticket status")
+	}
+
+	return nil
+}
+
+func AppendTicketMileStone(milestone *model.TicketMilestone, ticketId primitive.ObjectID) error {
+	ticket := &model.Ticket{}
+	coll := mgm.Coll(ticket)
+
+	searchExpr := bson.M{
+		"_id": ticketId,
+	}
+
+	updateExpr := bson.M{
+		"$push": bson.M{
+			"milestones": milestone,
+		},
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := coll.FindOneAndUpdate(settings.MySettings.Get_CtxWithTimeout(), searchExpr, updateExpr, opts).Decode(&ticket); err != nil {
+		return fmt.Errorf("error appending milestone to ticket: %v", err)
 	}
 
 	return nil

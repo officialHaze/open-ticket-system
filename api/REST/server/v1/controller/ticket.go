@@ -6,7 +6,9 @@ import (
 	"ots/model"
 	"ots/mongo/dbops"
 	"ots/pipeline"
+	"ots/settings"
 	"ots/ticketstructs"
+	"ots/tokenstructs"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -60,7 +62,16 @@ func GetTicketsByCreator(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, tickets)
 }
 
-func SetTicketStatusOpen(c *gin.Context) {
+func SetTicketStatus(c *gin.Context) {
+	resolverpayload, exists := c.Get("resolver")
+	if !exists {
+		c.IndentedJSON(http.StatusForbidden, "resolver session not found")
+		return
+	}
+
+	resolverId := resolverpayload.(*tokenstructs.AccessToken).Id
+
+	ticketstatus := c.GetString("ticketstatus")
 	ticketId := c.Query("ticketid")
 
 	ticketObjectId, err := primitive.ObjectIDFromHex(ticketId)
@@ -69,11 +80,37 @@ func SetTicketStatusOpen(c *gin.Context) {
 		return
 	}
 
-	if err := dbops.UpdateTicketStatus(ticketstructs.GenerateTicketStatus().Open, ticketObjectId); err != nil {
-		log.Printf("error opening ticket: %v", err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, "error opening ticket. internal server error")
+	// Pre-update Additional methods
+	switch ticketstatus {
+	case ticketstructs.GenerateTicketStatus().Open:
+		// When a ticket is opened, append appropriate milestone
+		dbops.AppendTicketMileStone(settings.MySettings.Get_DefaultTicketMilestones()[1], ticketObjectId)
+
+	case ticketstructs.GenerateTicketStatus().InProgress:
+		// When a ticket is in progress, append appropriate milestone
+		dbops.AppendTicketMileStone(settings.MySettings.Get_DefaultTicketMilestones()[2], ticketObjectId)
+
+	case ticketstructs.GenerateTicketStatus().Closed:
+		// When a ticket is closed
+		// It should be removed from the tracker
+		// of the resolver
+		if err := dbops.DeleteTicketTracker(ticketObjectId, resolverId); err != nil {
+			log.Println(err)
+			c.IndentedJSON(http.StatusInternalServerError, "error updating ticket status. the ticket might already be closed. internal error")
+			return
+		}
+		// appr milestone should be added
+		dbops.AppendTicketMileStone(settings.MySettings.Get_DefaultTicketMilestones()[3], ticketObjectId)
+
+	default:
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, "ticket has been opened")
+	if err := dbops.UpdateTicketStatus(ticketstatus, ticketObjectId); err != nil {
+		log.Printf("error updating ticket status: %v", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "error updating ticket status. internal server error")
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, "ticket status updated")
 }

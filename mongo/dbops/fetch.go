@@ -180,8 +180,8 @@ func GetTicketsBy[T any](by string, d T) []*model.Ticket {
 		tickets = append(tickets, ticket)
 	}
 
-	// Sort by title (A-Z)
-	sort.Slice(tickets, func(i, j int) bool { return strings.ToLower(tickets[i].Title) < strings.ToLower(tickets[j].Title) })
+	// Sort by oldest (older tickets must be given first preference)
+	sort.Slice(tickets, func(i, j int) bool { return tickets[i].CreatedAt.Before(tickets[j].CreatedAt) })
 
 	return tickets
 }

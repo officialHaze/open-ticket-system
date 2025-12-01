@@ -18,7 +18,8 @@ type Ticket struct {
 	AssignedTo       primitive.ObjectID `json:"assignedTo" bson:"assignedTo"`
 	CreatorId        string             `json:"creatorId" bson:"creatorId"`
 	CreatorDetails   *CreatorDetails    `json:"creatorDetails" bson:"creatorDetails"`
-	Comment          string             `json:"comment" bson:"bson"`
+	Comment          string             `json:"comment" bson:"comment"`
+	StatusUpdateDate time.Time          `json:"statusUpdateDate" bson:"statusUpdateDate"`
 }
 
 type TicketTracker struct {
