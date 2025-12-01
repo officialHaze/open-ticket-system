@@ -75,12 +75,28 @@ func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&ticket); err != nil {
 		// ticket does not exist
 		// Insert one
-		ticket.AssignedTo = primitive.NilObjectID
-		ticket.Milestones = append(ticket.Milestones, settings.MySettings.Get_DefaultTicketMilestones()[0])
-		ticket.Status = ticketstructs.GenerateTicketStatus().Created
+		ticket.Milestones = []*model.TicketMilestone{} // set empty milestone slice during creation
 		err := coll.Create(ticket)
 		if err != nil {
 			return nil, err
+		}
+
+		// Update ticket status to created
+		err = UpdateTicketStatus(ticketstructs.GenerateTicketStatus().Created, ticket.ID)
+		if err != nil {
+			log.Printf("error updating ticket status to created for - %s: %v", ticket.ID, err)
+		}
+
+		// Assign nil resolver to ticket in the begining
+		_, err = AssignResolverToTicket(ticket, primitive.NilObjectID)
+		if err != nil {
+			log.Printf("error assigning nil resolver ID to ticket - %s: %v", ticket.ID, err)
+		}
+
+		// Append the default begining milestone
+		err = AppendTicketMileStone(settings.MySettings.Get_DefaultTicketMilestones()[0], ticket.ID)
+		if err != nil {
+			log.Printf("error appending milestone to ticket - %s: %v", ticket.ID, err)
 		}
 
 		return ticket, nil
