@@ -1,6 +1,7 @@
 package dbops
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"ots/model"
@@ -14,19 +15,21 @@ import (
 )
 
 func GetTicketTrackers() []*model.TicketTracker {
-	// defer settings.MySettings.Get_CtxCancel()
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
 
 	trackers := make([]*model.TicketTracker, 0, 100)
 
 	ticketTracker := &model.TicketTracker{}
 	coll := mgm.Coll(ticketTracker)
 
-	cursor, err := coll.Find(settings.MySettings.Get_CtxWithTimeout(), bson.M{})
+	cursor, err := coll.Find(ctx, bson.M{})
 	if err != nil {
 		return []*model.TicketTracker{}
 	}
 
-	for cursor.Next(settings.MySettings.Get_CtxWithTimeout()) {
+	for cursor.Next(ctx) {
 		var tracker *model.TicketTracker
 		if err := cursor.Decode(&tracker); err != nil {
 			continue
@@ -39,6 +42,10 @@ func GetTicketTrackers() []*model.TicketTracker {
 }
 
 func GetSimilarTickets(title, description string) []*model.Ticket {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	similarTickets := make([]*model.Ticket, 0, 100)
 
 	ticket := &model.Ticket{}
@@ -60,13 +67,13 @@ func GetSimilarTickets(title, description string) []*model.Ticket {
 		"similarityScore": bson.M{"$meta": "textScore"},
 	})
 
-	cursor, err := coll.Find(settings.MySettings.Get_CtxWithTimeout(), filter, opts)
+	cursor, err := coll.Find(ctx, filter, opts)
 	if err != nil {
 		log.Printf("error searching similar tickets based on TITLE - %s and DESCRIPTION - %s: %v", title, description, err)
 		return []*model.Ticket{}
 	}
 
-	for cursor.Next(settings.MySettings.Get_CtxWithTimeout()) {
+	for cursor.Next(ctx) {
 		var rec *model.Ticket
 		if err := cursor.Decode(&rec); err != nil {
 			log.Printf("error decoding document: %v", err)
@@ -83,6 +90,10 @@ func GetSimilarTickets(title, description string) []*model.Ticket {
 }
 
 func GetAdminBy[T any](by string, d T) (*model.Admin, error) {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	admin := &model.Admin{}
 	coll := mgm.Coll(admin)
 
@@ -103,7 +114,7 @@ func GetAdminBy[T any](by string, d T) (*model.Admin, error) {
 		return nil, fmt.Errorf("by factor not supported yet")
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&admin); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&admin); err != nil {
 		// admin does not exist
 		return nil, fmt.Errorf("admin does not exist")
 	}
@@ -112,6 +123,10 @@ func GetAdminBy[T any](by string, d T) (*model.Admin, error) {
 }
 
 func GetResolverBy[T any](by string, d T) (*model.Resolver, error) {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	resolver := &model.Resolver{}
 	coll := mgm.Coll(resolver)
 
@@ -132,7 +147,7 @@ func GetResolverBy[T any](by string, d T) (*model.Resolver, error) {
 		return nil, fmt.Errorf("by factor not supported yet")
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&resolver); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&resolver); err != nil {
 		// admin does not exist
 		return nil, fmt.Errorf("resolver does not exist")
 	}
@@ -141,6 +156,10 @@ func GetResolverBy[T any](by string, d T) (*model.Resolver, error) {
 }
 
 func GetTicketsBy[T any](by string, d T) []*model.Ticket {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	tickets := make([]*model.Ticket, 0, 100)
 
 	ticket := &model.Ticket{}
@@ -164,13 +183,13 @@ func GetTicketsBy[T any](by string, d T) []*model.Ticket {
 		return []*model.Ticket{}
 	}
 
-	cursor, err := coll.Find(settings.MySettings.Get_CtxWithTimeout(), filter)
+	cursor, err := coll.Find(ctx, filter)
 	if err != nil {
 		log.Printf("error getting tickets: %v", err)
 		return []*model.Ticket{}
 	}
 
-	for cursor.Next(settings.MySettings.Get_CtxWithTimeout()) {
+	for cursor.Next(ctx) {
 		var ticket *model.Ticket
 		if err := cursor.Decode(&ticket); err != nil {
 			log.Printf("decoding error: %v", err)

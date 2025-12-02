@@ -1,6 +1,7 @@
 package dbops
 
 import (
+	"context"
 	"fmt"
 	"ots/model"
 	"ots/settings"
@@ -11,6 +12,10 @@ import (
 )
 
 func DeleteTicketTracker(ticketId, resolverId primitive.ObjectID) error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	tickettracker := &model.TicketTracker{}
 	coll := mgm.Coll(tickettracker)
 
@@ -19,7 +24,7 @@ func DeleteTicketTracker(ticketId, resolverId primitive.ObjectID) error {
 		"resolverId": resolverId,
 	}
 
-	if err := coll.FindOneAndDelete(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&tickettracker); err != nil {
+	if err := coll.FindOneAndDelete(ctx, filter).Decode(&tickettracker); err != nil {
 		return fmt.Errorf("error deleting tracker record of Ticket ID - %s and Resolver ID - %s: %v", ticketId, resolverId, err)
 	}
 

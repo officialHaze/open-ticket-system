@@ -2,11 +2,13 @@ package pipeline
 
 import (
 	"log"
+	"sync"
 )
 
 type Pipeline[T any] struct {
 	defsize int
 	queue   []T
+	mu      *sync.Mutex
 }
 
 // Builds the pipeline. Pass size as -1 or 0 to use the default size
@@ -22,11 +24,17 @@ func (p *Pipeline[T]) Build(size int) {
 
 // Appends data to the pipeline
 func (p *Pipeline[T]) Push(d T) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	p.queue = append(p.queue, d)
 }
 
 // Get first n items
 func (p *Pipeline[T]) GetFirstOf(n int) []T {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	queuesize := len(p.queue)
 	n = min(queuesize, n)
 
@@ -38,6 +46,9 @@ func (p *Pipeline[T]) GetFirstOf(n int) []T {
 
 // Remove first n items
 func (p *Pipeline[T]) EmptyUpto(n int) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	queuesize := len(p.queue)
 	n = min(queuesize, n)
 
