@@ -1,6 +1,7 @@
 package dbops
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"ots/model"
@@ -13,7 +14,9 @@ import (
 )
 
 func AddAdmin(admin *model.Admin) (interface{}, error) {
-	// defer settings.MySettings.Get_CtxCancel()()
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
 
 	coll := mgm.Coll(admin)
 
@@ -21,7 +24,7 @@ func AddAdmin(admin *model.Admin) (interface{}, error) {
 		"email": admin.Email,
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&admin); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&admin); err != nil {
 		// Admin does not exist
 		// Insert one
 		err := coll.Create(admin)
@@ -34,7 +37,9 @@ func AddAdmin(admin *model.Admin) (interface{}, error) {
 }
 
 func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
-	// defer settings.MySettings.Get_CtxCancel()()
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
 
 	coll := mgm.Coll(resolver)
 
@@ -42,7 +47,7 @@ func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
 		"email": resolver.Email,
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&resolver); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&resolver); err != nil {
 		// Resolver does not exist
 		// Insert one
 		err := coll.Create(resolver)
@@ -64,7 +69,9 @@ func AddResolver(resolver *model.Resolver) (primitive.ObjectID, error) {
 }
 
 func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
-	// defer settings.MySettings.Get_CtxCancel()()
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
 
 	coll := mgm.Coll(ticket)
 
@@ -72,7 +79,7 @@ func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		"title": ticket.Title,
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&ticket); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&ticket); err != nil {
 		// ticket does not exist
 		// Insert one
 		ticket.Milestones = []*model.TicketMilestone{} // set empty milestone slice during creation
@@ -106,7 +113,9 @@ func AddTicket(ticket *model.Ticket) (*model.Ticket, error) {
 }
 
 func AddTicketTracker(ticketId primitive.ObjectID, resolverId primitive.ObjectID) (*model.TicketTracker, error) {
-	// defer settings.MySettings.Get_CtxCancel()()
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
 
 	tickettracker := &model.TicketTracker{}
 	coll := mgm.Coll(tickettracker)
@@ -118,7 +127,7 @@ func AddTicketTracker(ticketId primitive.ObjectID, resolverId primitive.ObjectID
 		},
 	}
 
-	if err := coll.FindOne(settings.MySettings.Get_CtxWithTimeout(), filter).Decode(&tickettracker); err != nil {
+	if err := coll.FindOne(ctx, filter).Decode(&tickettracker); err != nil {
 		// ticket does not exist
 		// Insert one
 		tickettracker.TicketID = ticketId

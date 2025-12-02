@@ -1,7 +1,6 @@
 package settings
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,16 +60,12 @@ func Generate() {
 		log.Println(err)
 	}
 
-	ctxBase := context.TODO()
-	ctx, cancel := context.WithTimeout(ctxBase, time.Duration(conf.Ctx_timeout_min)*time.Minute)
-
 	MySettings = &Settings{
 		mongo_url:                 conf.Mongo_url,
 		db_name:                   conf.Db_name,
 		use_env:                   conf.Use_env,
 		default_ticket_milestones: conf.Default_ticket_milestones,
-		ctx_with_timeout:          ctx,
-		ctx_cancel:                cancel,
+		ctx_timeout:               time.Duration(conf.Ctx_timeout_min) * time.Minute,
 		initial_admins:            conf.Initial_admins,
 		password_hash_rounds:      conf.Password_hash_rounds,
 		pipeline_size:             conf.Pipeline_size,
@@ -87,8 +82,7 @@ type Settings struct {
 	db_name                   string
 	use_env                   string
 	default_ticket_milestones []*model.TicketMilestone
-	ctx_with_timeout          context.Context
-	ctx_cancel                context.CancelFunc
+	ctx_timeout               time.Duration
 	initial_admins            []*model.Admin
 	password_hash_rounds      int
 	pipeline_size             int
@@ -123,12 +117,8 @@ func (s *Settings) Get_DefaultTicketMilestones() []*model.TicketMilestone {
 	return s.default_ticket_milestones
 }
 
-func (s *Settings) Get_CtxWithTimeout() context.Context {
-	return s.ctx_with_timeout
-}
-
-func (s *Settings) Get_CtxCancel() context.CancelFunc {
-	return s.ctx_cancel
+func (s *Settings) Get_CtxTimeout() time.Duration {
+	return s.ctx_timeout
 }
 
 func (s *Settings) Get_InitialAdmins() []*model.Admin {

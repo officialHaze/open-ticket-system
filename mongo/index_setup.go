@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"ots/model"
@@ -14,6 +15,10 @@ import (
 
 // Ticket Index
 func EnsureTicketIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	ticket := &model.Ticket{}
 	coll := mgm.Coll(ticket)
 
@@ -92,7 +97,7 @@ func EnsureTicketIndexes() error {
 		index4,
 		index5,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -104,6 +109,10 @@ func EnsureTicketIndexes() error {
 
 // Ticket Pipeline Index
 func EnsureTicketTrackerIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	ticketpipeline := &model.TicketTracker{}
 	coll := mgm.Coll(ticketpipeline)
 
@@ -134,7 +143,7 @@ func EnsureTicketTrackerIndexes() error {
 		index1,
 		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -146,6 +155,10 @@ func EnsureTicketTrackerIndexes() error {
 
 // Resolver Index
 func EnsureResolverIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	resolver := &model.Resolver{}
 	coll := mgm.Coll(resolver)
 
@@ -179,7 +192,7 @@ func EnsureResolverIndexes() error {
 		index1,
 		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -191,6 +204,10 @@ func EnsureResolverIndexes() error {
 
 // Admin Index
 func EnsureAdminIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	admin := &model.Admin{}
 	coll := mgm.Coll(admin)
 
@@ -221,7 +238,7 @@ func EnsureAdminIndexes() error {
 		index1,
 		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
