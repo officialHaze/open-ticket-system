@@ -20,11 +20,13 @@ func MapRoutes(v1 *gin.RouterGroup) {
 	ticket.POST("/new", middleware.AuthenticateAPIKey, controller.NewTicket)
 	ticket.GET("/", middleware.AuthenticateAPIKey, controller.GetTicketsByCreator)
 
+	// open a ticket
 	ticket.PUT("/open",
 		middleware.AuthenticateResolverAccess,
 		func(ctx *gin.Context) { ctx.Set("ticketstatus", ticketstructs.GenerateTicketStatus().Open); ctx.Next() },
 		controller.SetTicketStatus) // only resolvers can update status of tickets
 
+	// ticket in progress
 	ticket.PUT("/inprogress",
 		middleware.AuthenticateResolverAccess,
 		func(ctx *gin.Context) {
@@ -33,6 +35,7 @@ func MapRoutes(v1 *gin.RouterGroup) {
 		},
 		controller.SetTicketStatus) // only resolvers can update status of tickets
 
+	// close a ticket
 	ticket.DELETE("/close",
 		middleware.AuthenticateResolverAccess,
 		func(ctx *gin.Context) {
@@ -40,6 +43,9 @@ func MapRoutes(v1 *gin.RouterGroup) {
 			ctx.Next()
 		},
 		controller.SetTicketStatus) // only resolvers can update status of tickets
+
+	// set priority
+	ticket.PUT("/priority/:set", middleware.AuthenticateResolverAccess, controller.SetTicketPriority) // resolvers can set priority of a ticket
 
 	// **** Resolver Group **** //
 	resolver := v1.Group("/resolver")

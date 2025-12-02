@@ -85,6 +85,19 @@ func AppendTicketMileStone(milestone *model.TicketMilestone, ticketId primitive.
 		"_id": ticketId,
 	}
 
+	if err := coll.FindOne(ctx, searchExpr).Decode(&ticket); err != nil {
+		return fmt.Errorf("ticket with ID - %s does not exist: %v", ticketId, err)
+	}
+
+	existingMilestones := ticket.Milestones
+
+	for _, exmilestone := range existingMilestones {
+		if exmilestone.Mark == milestone.Mark {
+			// milestone already exists
+			return nil
+		}
+	}
+
 	updateExpr := bson.M{
 		"$push": bson.M{
 			"milestones": milestone,
@@ -94,6 +107,33 @@ func AppendTicketMileStone(milestone *model.TicketMilestone, ticketId primitive.
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	if err := coll.FindOneAndUpdate(ctx, searchExpr, updateExpr, opts).Decode(&ticket); err != nil {
 		return fmt.Errorf("error appending milestone to ticket: %v", err)
+	}
+
+	return nil
+}
+
+func SetPriority(priority string, ticketId primitive.ObjectID) error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
+	ticket := &model.Ticket{}
+	coll := mgm.Coll(ticket)
+
+	searchfilter := bson.M{
+		"_id": ticketId,
+	}
+
+	updatefilter := bson.M{
+		"$set": bson.M{
+			"priority": priority,
+		},
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	err := coll.FindOneAndUpdate(ctx, searchfilter, updatefilter, opts).Decode(&ticket)
+	if err != nil {
+		return fmt.Errorf("error setting priority for ticket - %s", ticketId)
 	}
 
 	return nil
