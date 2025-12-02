@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"ots/model"
@@ -113,4 +114,30 @@ func SetTicketStatus(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusCreated, "ticket status updated")
+}
+
+func SetTicketPriority(c *gin.Context) {
+	ticketId := c.Query("ticketid")
+
+	priority := c.Param("set")
+	p := &ticketstructs.Priority{}
+
+	if !p.IsValid(priority) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "invalid priority type provided")
+		return
+	}
+
+	ticketObjectId, err := primitive.ObjectIDFromHex(ticketId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "invalid ticket id")
+		return
+	}
+
+	if err := dbops.SetPriority(priority, ticketObjectId); err != nil {
+		log.Printf("error setting priority: %v", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "error setting ticket priority. internal server error")
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, fmt.Sprintf("priority set to - %s for ticket - %s", priority, ticketId))
 }
