@@ -29,9 +29,10 @@ type TicketTracker struct {
 }
 
 type TicketMilestone struct {
-	Mark    int    `json:"mark" bson:"mark"`
-	Title   string `json:"title" bson:"title"`
-	Message string `json:"message" bson:"message"`
+	Mark       int       `json:"mark" bson:"mark"`
+	Title      string    `json:"title" bson:"title"`
+	Message    string    `json:"message" bson:"message"`
+	AchievedOn time.Time `json:"achievedOn" bson:"achievedOn"`
 }
 
 type CreatorDetails struct {

@@ -78,6 +78,10 @@ func AppendTicketMileStone(milestone *model.TicketMilestone, ticketId primitive.
 	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
 	defer cancel()
 
+	// set achieved on time
+	now := time.Now()
+	milestone.AchievedOn = now
+
 	ticket := &model.Ticket{}
 	coll := mgm.Coll(ticket)
 
