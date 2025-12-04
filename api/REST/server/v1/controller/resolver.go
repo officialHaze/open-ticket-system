@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"ots/helper"
@@ -21,9 +22,22 @@ func NewResolver(c *gin.Context) {
 		return
 	}
 
-	addedResolverIds := make([]string, len(resolvers))
+	addedResolverIds := make([]string, 0, len(resolvers))
+	invalidEmailIds, invalidPhonenos := make([]string, 0, len(resolvers)), make([]string, 0, len(resolvers))
 
-	for i, r := range resolvers {
+	for _, r := range resolvers {
+		// validate email
+		if err := helper.ValidateEmail(r.Email); err != nil {
+			invalidEmailIds = append(invalidEmailIds, fmt.Errorf("validation error for email - %s: %v", r.Email, err).Error())
+			continue
+		}
+
+		// validate phone
+		if err := helper.ValidatePhone(r.Phone); err != nil {
+			invalidPhonenos = append(invalidPhonenos, fmt.Errorf("validation error for email - %s: %v", r.Email, err).Error())
+			continue
+		}
+
 		// hash the password and update
 		hashed, err := helper.HashPasswd(r.Password)
 		if err != nil {
@@ -39,10 +53,14 @@ func NewResolver(c *gin.Context) {
 			continue
 		}
 		log.Printf("Resolver added with ID: %s", resolverId.Hex())
-		addedResolverIds[i] = resolverId.Hex()
+		addedResolverIds = append(addedResolverIds, resolverId.Hex())
 	}
 
-	c.IndentedJSON(http.StatusCreated, addedResolverIds)
+	c.IndentedJSON(http.StatusAccepted, map[string]any{
+		"addedResolvers":  addedResolverIds,
+		"invalidEmails":   invalidEmailIds,
+		"invalidPhonenos": invalidPhonenos,
+	})
 }
 
 func ResolverLogin(c *gin.Context) {
