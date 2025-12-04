@@ -28,6 +28,7 @@ type settingsConf struct {
 	Reservoir_size            int                      `json:"reservoir_size"`
 	Token_footer              string                   `json:"token_footer"`
 	Access_token_exp_min      int                      `json:"access_token_exp_min"`
+	Allowed_client_origins    []string                 `json:"allowed_client_origins"`
 }
 
 func ReadConfig() (*settingsConf, error) {
@@ -74,6 +75,7 @@ func Generate() {
 		reservoir_size:            conf.Reservoir_size,
 		token_footer:              conf.Token_footer,
 		access_token_exp_min:      time.Duration(conf.Access_token_exp_min) * time.Minute,
+		allowed_client_origins:    conf.Allowed_client_origins,
 	}
 }
 
@@ -91,6 +93,7 @@ type Settings struct {
 	reservoir_size            int
 	token_footer              string
 	access_token_exp_min      time.Duration
+	allowed_client_origins    []string
 }
 
 // Getters
@@ -151,4 +154,8 @@ func (s *Settings) Get_TokenFooter() string {
 
 func (s *Settings) Get_AccessTokenExpMin() time.Duration {
 	return s.access_token_exp_min
+}
+
+func (s *Settings) Get_AllowedClientOrigins() []string {
+	return s.allowed_client_origins
 }
