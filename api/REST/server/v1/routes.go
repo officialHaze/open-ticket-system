@@ -26,7 +26,7 @@ func MapRoutes(v1 *gin.RouterGroup) {
 		func(ctx *gin.Context) { ctx.Set("ticketstatus", ticketstructs.GenerateTicketStatus().Open); ctx.Next() },
 		controller.SetTicketStatus) // only resolvers can update status of tickets
 
-	// ticket in progress
+	// set ticket in progress
 	ticket.PUT("/inprogress",
 		middleware.AuthenticateResolverAccess,
 		func(ctx *gin.Context) {
