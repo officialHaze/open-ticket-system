@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 	"os"
+	"ots/api/REST/server"
 	"ots/helper"
 	"ots/settings"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/kamva/mgm/v3"
@@ -30,6 +32,10 @@ func init() {
 	}
 	log.Println("MGM setup complete.")
 
+	// Generate paseto
+	if err := helper.GeneratePaseto(); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func main() {
@@ -43,4 +49,34 @@ func main() {
 	// Add initial admins
 	ids := helper.AddInitialAdmins()
 	log.Printf("Insterted Admin IDs: %v", ids)
+
+	switch getArg() {
+	case "ots-server":
+		helper.GenerateTicketPipeline()
+		go func() {
+			helper.InitializeTicketAssigner()
+		}()
+		server.Start()
+		return
+	default:
+		log.Fatalln("Unsupported arg")
+		return
+	}
+}
+
+func getArg() string {
+	args := os.Args
+
+	execname := args[0]
+	log.Printf("Executable name: %s", execname)
+
+	if len(args) <= 1 {
+		log.Fatalln("No arg provided.")
+	}
+
+	mainarg := args[1]
+	mainarg = strings.TrimSpace(strings.ToLower(mainarg)) // normalize
+	log.Printf("Main Arg: %s", mainarg)
+
+	return mainarg
 }

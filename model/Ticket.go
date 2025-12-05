@@ -9,7 +9,7 @@ import (
 
 type Ticket struct {
 	mgm.DefaultModel `bson:",inline"`
-	Title            string             `json:"title" bson:"title"`
+	Title            string             `json:"title" bson:"title"` // unique
 	Description      string             `json:"description" bson:"description"`
 	Status           string             `json:"status" bson:"status"`
 	Priority         string             `json:"priority" bson:"priority"`
@@ -17,16 +17,25 @@ type Ticket struct {
 	Milestones       []*TicketMilestone `json:"milestones" bson:"milestones"`
 	AssignedTo       primitive.ObjectID `json:"assignedTo" bson:"assignedTo"`
 	CreatorId        string             `json:"creatorId" bson:"creatorId"`
+	CreatorDetails   *CreatorDetails    `json:"creatorDetails" bson:"creatorDetails"`
+	Comment          string             `json:"comment" bson:"comment"`
+	StatusUpdateDate time.Time          `json:"statusUpdateDate" bson:"statusUpdateDate"`
 }
 
-type TicketPipeline struct {
+type TicketTracker struct {
 	mgm.DefaultModel `bson:",inline"`
 	TicketID         primitive.ObjectID `json:"ticketId" bson:"ticketId"`
 	ResolverID       primitive.ObjectID `json:"resolverId" bson:"resolverId"`
 }
 
 type TicketMilestone struct {
-	Mark    int    `json:"mark" bson:"mark"`
-	Title   string `json:"title" bson:"title"`
-	Message string `json:"message" bson:"message"`
+	Mark       int       `json:"mark" bson:"mark"`
+	Title      string    `json:"title" bson:"title"`
+	Message    string    `json:"message" bson:"message"`
+	AchievedOn time.Time `json:"achievedOn" bson:"achievedOn"`
+}
+
+type CreatorDetails struct {
+	Name  string `json:"name" bson:"name"`
+	Email string `json:"email" bson:"email"`
 }

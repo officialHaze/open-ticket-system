@@ -1,0 +1,20 @@
+services:
+  ots-api-local:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: "ots-api-local"
+    ports:
+      - "6666:6666" # Map host port with container port
+    volumes:
+      - .:/ots-api:Z # For monitoring changes and hot reloading inside docker container
+      # - /cti/tmp # Prevent from overwriting
+      - .env.local:/ots-api/.env.local:Z # map the env file to the one in docker container for development environment
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - kakushibe_ikki
+
+networks:
+  kakushibe_ikki:
+    external: true

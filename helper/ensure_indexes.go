@@ -5,7 +5,7 @@ import "ots/mongo"
 func EnsureAllIndexes() []error {
 	idxs := map[int]func() error{
 		0: mongo.EnsureTicketIndexes,
-		1: mongo.EnsureTicketPipelineIndexes,
+		1: mongo.EnsureTicketTrackerIndexes,
 		2: mongo.EnsureResolverIndexes,
 		3: mongo.EnsureAdminIndexes,
 	}

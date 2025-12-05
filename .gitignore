@@ -1,3 +1,5 @@
 # env related
 .env.*
 !.env.local
+tmp/
+bin/

@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"ots/model"
@@ -14,6 +15,10 @@ import (
 
 // Ticket Index
 func EnsureTicketIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	ticket := &model.Ticket{}
 	coll := mgm.Coll(ticket)
 
@@ -73,14 +78,26 @@ func EnsureTicketIndexes() error {
 		Options: options.Index().SetName("creator_id_idx"),
 	}
 
+	// index 5
+	index5 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "title",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetName("ticket_title_idx").SetUnique(true),
+	}
+
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
 		index2,
 		index3,
 		index4,
+		index5,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -91,8 +108,12 @@ func EnsureTicketIndexes() error {
 }
 
 // Ticket Pipeline Index
-func EnsureTicketPipelineIndexes() error {
-	ticketpipeline := &model.TicketPipeline{}
+func EnsureTicketTrackerIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
+	ticketpipeline := &model.TicketTracker{}
 	coll := mgm.Coll(ticketpipeline)
 
 	// index 1
@@ -122,7 +143,7 @@ func EnsureTicketPipelineIndexes() error {
 		index1,
 		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -134,6 +155,10 @@ func EnsureTicketPipelineIndexes() error {
 
 // Resolver Index
 func EnsureResolverIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	resolver := &model.Resolver{}
 	coll := mgm.Coll(resolver)
 
@@ -145,10 +170,6 @@ func EnsureResolverIndexes() error {
 				Value: "text",
 			},
 			{
-				Key:   "email",
-				Value: "text",
-			},
-			{
 				Key:   "status",
 				Value: "text",
 			},
@@ -156,11 +177,22 @@ func EnsureResolverIndexes() error {
 		Options: options.Index().SetName("text_compund_idx"),
 	}
 
+	index2 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "email",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetUnique(true).SetName("resolver_email_idx"),
+	}
+
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
+		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
@@ -172,6 +204,10 @@ func EnsureResolverIndexes() error {
 
 // Admin Index
 func EnsureAdminIndexes() error {
+	ctxbase := context.TODO()
+	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
+	defer cancel()
+
 	admin := &model.Admin{}
 	coll := mgm.Coll(admin)
 
@@ -182,19 +218,27 @@ func EnsureAdminIndexes() error {
 				Key:   "name",
 				Value: "text",
 			},
-			{
-				Key:   "email",
-				Value: "text",
-			},
 		},
 		Options: options.Index().SetName("text_compund_idx"),
+	}
+
+	// index 2
+	index2 := mongo.IndexModel{
+		Keys: bson.D{
+			{
+				Key:   "email",
+				Value: 1,
+			},
+		},
+		Options: options.Index().SetUnique(true).SetName("admin_email_index"),
 	}
 
 	// create indexes
 	idxs := []mongo.IndexModel{
 		index1,
+		index2,
 	}
-	names, err := coll.Indexes().CreateMany(settings.MySettings.Get_CtxWithTimeout(), idxs)
+	names, err := coll.Indexes().CreateMany(ctx, idxs)
 	if err != nil {
 		return fmt.Errorf("error creating all the indexes %v: %v", idxs, err)
 	}
