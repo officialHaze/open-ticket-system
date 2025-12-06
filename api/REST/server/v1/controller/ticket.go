@@ -25,11 +25,16 @@ func NewTicket(c *gin.Context) {
 		return
 	}
 
+	if ticketdetails.CreatorId == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "Mandatory Creator ID is missing")
+		return
+	}
+
 	if forcecreate == "0" {
 		// First search and get similar tickets
 		// if found, then return the similar tickets
 		// no need to create new unless force query is true
-		similarTickets := dbops.GetSimilarTickets(ticketdetails.Title, ticketdetails.Description)
+		similarTickets := dbops.GetSimilarTickets(ticketdetails.Title, ticketdetails.Description, ticketdetails.CreatorId)
 		if len(similarTickets) > 0 {
 			c.IndentedJSON(http.StatusAccepted, map[string]any{
 				"message": "found similar tickets",

@@ -41,7 +41,7 @@ func GetTicketTrackers() []*model.TicketTracker {
 	return trackers
 }
 
-func GetSimilarTickets(title, description string) []*model.Ticket {
+func GetSimilarTickets(title, description, creatorId string) []*model.Ticket {
 	ctxbase := context.TODO()
 	ctx, cancel := context.WithTimeout(ctxbase, settings.MySettings.Get_CtxTimeout())
 	defer cancel()
@@ -52,6 +52,7 @@ func GetSimilarTickets(title, description string) []*model.Ticket {
 	coll := mgm.Coll(ticket)
 
 	filter := bson.M{
+		"creatorId": creatorId,
 		"$text": bson.M{
 			"$search": title + " " + description,
 		},
@@ -69,7 +70,7 @@ func GetSimilarTickets(title, description string) []*model.Ticket {
 
 	cursor, err := coll.Find(ctx, filter, opts)
 	if err != nil {
-		log.Printf("error searching similar tickets based on TITLE - %s and DESCRIPTION - %s: %v", title, description, err)
+		log.Printf("error searching similar tickets based on TITLE - %s and DESCRIPTION - %s for CREATORID - %s: %v", title, description, creatorId, err)
 		return []*model.Ticket{}
 	}
 
