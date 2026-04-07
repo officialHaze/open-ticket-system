@@ -29,6 +29,7 @@ type settingsConf struct {
 	Token_footer              string                   `json:"token_footer"`
 	Access_token_exp_min      int                      `json:"access_token_exp_min"`
 	Allowed_client_origins    []string                 `json:"allowed_client_origins"`
+	Rate_limit				  int					   `json:"rate_limit"`
 }
 
 func ReadConfig() (*settingsConf, error) {
@@ -76,6 +77,7 @@ func Generate() {
 		token_footer:              conf.Token_footer,
 		access_token_exp_min:      time.Duration(conf.Access_token_exp_min) * time.Minute,
 		allowed_client_origins:    conf.Allowed_client_origins,
+		rate_limit : 			   conf.Rate_limit,
 	}
 }
 
@@ -94,6 +96,7 @@ type Settings struct {
 	token_footer              string
 	access_token_exp_min      time.Duration
 	allowed_client_origins    []string
+	rate_limit				  int
 }
 
 // Getters
@@ -158,4 +161,8 @@ func (s *Settings) Get_AccessTokenExpMin() time.Duration {
 
 func (s *Settings) Get_AllowedClientOrigins() []string {
 	return s.allowed_client_origins
+}
+
+func (s *Settings) Get_RateLimit() int {
+	return s.rate_limit
 }
