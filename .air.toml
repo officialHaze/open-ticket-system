@@ -1,0 +1,24 @@
+# Config file for Air
+
+# Root directory of your project
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ."
+  bin = "./tmp/main"
+  exclude = ["tmp/*" ,  "client/*"]
+  include = ["**/*.go"]
+  ignore = ["tmp/*" ]
+  poll = true
+
+[log]
+  level = "debug"
+
+[watcher]
+  color = true
+  debounce = 1000
+  ignore = ["tmp/*", "vendor/*"]
+
+[misc]
+clean_on_exit = true
