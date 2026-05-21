@@ -1,7 +1,7 @@
 package notification
 
 import (
-	"Slack/cmd" // ← now cmd is actually used
+	"Slack/cmd"
 	"Slack/notifier"
 	"fmt"
 	"log"
@@ -28,7 +28,7 @@ func (s *SlackNotifier) NotifyNewTicket(channelID string, t *model.Ticket) {
 		return
 	}
 	msg := fmt.Sprintf(
-		"🎫 *New Ticket Generated*\n*Ticket ID:* `%s`\n*Title:* %s\n*Priority:* %s\n*Status:* %s\n*Created by:* %s",
+		"*New Ticket Generated*\n*Ticket ID:* `%s`\n*Title:* %s\n*Priority:* %s\n*Status:* %s\n*Created by:* %s",
 		t.ID.Hex(), t.Title, t.Priority, t.Status, t.CreatorId,
 	)
 	if err := cmd.SendMessage(settings.MySettings.Get_SlackBotToken(), channelID, msg); err != nil {
