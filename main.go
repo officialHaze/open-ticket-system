@@ -6,6 +6,7 @@ import (
 	"ots/api/REST/server"
 	"ots/helper"
 	"ots/settings"
+	"ots/util"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -41,6 +42,8 @@ func init() {
 func main() {
 	env := os.Getenv("ENV")
 	log.Printf("OTS running in %s environment.", env)
+
+	util.StartTokenBucket()
 
 	// DB index setup
 	errs := helper.EnsureAllIndexes()
