@@ -1,0 +1,21 @@
+name: Open_Ticket_Sytsem
+services:
+  ots:
+    image: moinakdeyofficial/ots:v2.0.0-pre
+    container_name: "ots-backend"
+    ports:
+      - 14069:14069 # Map host port with container port
+    volumes:
+      - ./.env:/ots/.env:ro
+      - ./settings/settings.jsonc:/ots/settings/settings.jsonc:ro
+      - logs:/var/log
+    networks:
+      - kakushibe_ikki
+
+networks:
+  kakushibe_ikki:
+    external: true
+
+volumes:
+  logs:
+    driver: local
