@@ -3,6 +3,8 @@ package ticketassigner
 import (
 	"fmt"
 	"log"
+	"os"
+	"ots/internal/notification"
 	"ots/model"
 	"ots/mongo/dbops"
 	"ots/pipeline"
@@ -122,6 +124,11 @@ func (t *TickerAssigner) Assign(ticket *model.Ticket) (primitive.ObjectID, error
 	}
 
 	log.Printf("Ticket assigned to resolver - %s", resolverId.Hex())
+
+	resolver, _ := dbops.GetResolverBy("id", resolverId)
+
+	go notification.Default.NotifyNewTicket(os.Getenv("SLACK_DEF_CHANNEL_ID"), ticket, resolver)
+
 	return resolverId, nil
 }
 

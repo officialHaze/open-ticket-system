@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"ots/internal/notification"
 	"ots/model"
 	"ots/mongo/dbops"
 	"ots/pipeline"
@@ -18,12 +17,6 @@ import (
 
 func NewTicket(c *gin.Context) {
 	forcecreate := c.Query("force")
-	channelID := c.Query("channel")
-	if channelID == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, "channel query param is required")
-		return
-	}
-
 	ticketdetails := &model.Ticket{}
 	if err := c.BindJSON(ticketdetails); err != nil {
 		log.Printf("Error binding JSON: %v", err)
@@ -57,7 +50,6 @@ func NewTicket(c *gin.Context) {
 		return
 	}
 	log.Printf("Ticket created with ID: %s", ticket.ID)
-  go notification.Default.NotifyNewTicket(channelID, ticket)
 	c.IndentedJSON(http.StatusCreated, ticket.ID)
 
 	// Push to ticket pipeline
