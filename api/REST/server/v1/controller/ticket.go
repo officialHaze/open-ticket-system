@@ -17,7 +17,6 @@ import (
 
 func NewTicket(c *gin.Context) {
 	forcecreate := c.Query("force")
-
 	ticketdetails := &model.Ticket{}
 	if err := c.BindJSON(ticketdetails); err != nil {
 		log.Printf("Error binding JSON: %v", err)
@@ -51,7 +50,6 @@ func NewTicket(c *gin.Context) {
 		return
 	}
 	log.Printf("Ticket created with ID: %s", ticket.ID)
-
 	c.IndentedJSON(http.StatusCreated, ticket.ID)
 
 	// Push to ticket pipeline

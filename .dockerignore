@@ -1,4 +1,7 @@
 # all git related
 .git/
 .gitignore
-bin/
+
+Dockerfile
+docker-*.yml
+.dockerignore

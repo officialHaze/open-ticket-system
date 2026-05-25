@@ -1,5 +1,10 @@
-# env related
 .env.*
+.env
 !.env.local
+SLACK_MESSAGE/config.yml
+slack_config.*
 tmp/
 bin/
+ots-*
+ots.*
+ots
