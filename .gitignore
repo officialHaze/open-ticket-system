@@ -11,4 +11,4 @@ tmp/
 bin/
 SLACK_MESSAGE/config.yml
 !.env.local
-.env.env.local
+.env

@@ -57,7 +57,7 @@ func NewTicket(c *gin.Context) {
 		return
 	}
 	log.Printf("Ticket created with ID: %s", ticket.ID)
-    go notification.Default.NotifyNewTicket(channelID, ticket)
+  go notification.Default.NotifyNewTicket(channelID, ticket)
 	c.IndentedJSON(http.StatusCreated, ticket.ID)
 
 	// Push to ticket pipeline

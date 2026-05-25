@@ -42,5 +42,6 @@
   "access_token_exp_min": 20,
   "allowed_client_origins": ["http://localhost:3000"],
   "slack_bot_token": "<YOUR-BOT-TOKEN>",
-  "slack_channel_id": "<DEFAULT CHANNEL ID>"
+  "slack_channel_id": "<DEFAULT_CHANNEL_ID>"
+  "rate_limit": 5
 }

@@ -31,6 +31,7 @@ type settingsConf struct {
 	Allowed_client_origins    []string                 `json:"allowed_client_origins"`
 	Slack_bot_token  		  string 				   `json:"slack_bot_token"`
 	Slack_channel_id          string                   `json:"slack_channel_id"`
+	Rate_limit				  int					   `json:"rate_limit"`
 }
 
 func ReadConfig() (*settingsConf, error) {
@@ -80,6 +81,7 @@ func Generate() {
 		allowed_client_origins:    conf.Allowed_client_origins,
 		Slack_bot_token:           conf.Slack_bot_token,  	
 		Slack_channel_id:          conf.Slack_channel_id,
+		rate_limit : 			   conf.Rate_limit,
 	}
 }
 
@@ -100,6 +102,7 @@ type Settings struct {
 	allowed_client_origins    []string
 	Slack_bot_token           string
 	Slack_channel_id          string
+	rate_limit				  int
 }
 
 // Getters
@@ -170,4 +173,8 @@ func(s *Settings) Get_SlackBotToken() string {
 }
 func(s *Settings) Get_channelID() string{
 	return s.Slack_channel_id
+}
+
+func (s *Settings) Get_RateLimit() int {
+	return s.rate_limit
 }
