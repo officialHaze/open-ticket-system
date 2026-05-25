@@ -1,5 +1,14 @@
-# env related
+# # env related
+# .env.*
+# # !.env.local
+# tmp/
+# bin/
+# SLACK_MESSAGE/config.yml
+# .env.local
+# .env
 .env.*
-!.env.local
 tmp/
 bin/
+SLACK_MESSAGE/config.yml
+!.env.local
+.env

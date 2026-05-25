@@ -29,6 +29,8 @@ type settingsConf struct {
 	Token_footer              string                   `json:"token_footer"`
 	Access_token_exp_min      int                      `json:"access_token_exp_min"`
 	Allowed_client_origins    []string                 `json:"allowed_client_origins"`
+	Slack_bot_token  		  string 				   `json:"slack_bot_token"`
+	Slack_channel_id          string                   `json:"slack_channel_id"`
 	Rate_limit				  int					   `json:"rate_limit"`
 }
 
@@ -77,6 +79,8 @@ func Generate() {
 		token_footer:              conf.Token_footer,
 		access_token_exp_min:      time.Duration(conf.Access_token_exp_min) * time.Minute,
 		allowed_client_origins:    conf.Allowed_client_origins,
+		Slack_bot_token:           conf.Slack_bot_token,  	
+		Slack_channel_id:          conf.Slack_channel_id,
 		rate_limit : 			   conf.Rate_limit,
 	}
 }
@@ -96,6 +100,8 @@ type Settings struct {
 	token_footer              string
 	access_token_exp_min      time.Duration
 	allowed_client_origins    []string
+	Slack_bot_token           string
+	Slack_channel_id          string
 	rate_limit				  int
 }
 
@@ -161,6 +167,12 @@ func (s *Settings) Get_AccessTokenExpMin() time.Duration {
 
 func (s *Settings) Get_AllowedClientOrigins() []string {
 	return s.allowed_client_origins
+}
+func(s *Settings) Get_SlackBotToken() string {
+	return s.Slack_bot_token
+}
+func(s *Settings) Get_channelID() string{
+	return s.Slack_channel_id
 }
 
 func (s *Settings) Get_RateLimit() int {
