@@ -1,7 +1,7 @@
 {
-  "mongo_url": "mongodb://rootlocal:<DB_PASSWORD>@host.docker.internal:27017/",
+  "mongo_url": "mongodb://rootlocal:<DB_PASSWORD>@localhost:27017/",
   "db_name": "ots_db",
-  "use_env": ".env.local",
+  "use_env": ".env",
   "default_ticket_milestones": [
     {
       "mark": 1,
@@ -41,7 +41,5 @@
   "token_footer": "Moinak Dey",
   "access_token_exp_min": 20,
   "allowed_client_origins": ["http://localhost:3000"],
-  "slack_bot_token": "<YOUR-BOT-TOKEN>",
-  "slack_channel_id": "<DEFAULT_CHANNEL_ID>"
   "rate_limit": 5
 }
